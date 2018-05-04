@@ -1,3 +1,2 @@
-# contrib
-
-eric contrib
+# gommon
+Common packages for Go

@@ -1,0 +1,26 @@
+package crypto
+
+import (
+	"fmt"
+	"testing"
+)
+
+func TestMd5(t *testing.T) {
+
+	_encodeMd5 := Md5("go语言中，判断两个字符串是否相等")
+
+	_bTrue := CompareMd5("go语言中，判断两个字符串是否相等", _encodeMd5)
+
+	if !_bTrue {
+		t.Errorf("CompareMd5 error")
+	}
+
+	_encodeDoubleMd5 := Md5(_encodeMd5)
+
+	_bTrue = CompareDoubleMd5("go语言中，判断两个字符串是否相等", _encodeDoubleMd5)
+	if !_bTrue {
+		t.Errorf("CompareDoubleMd5 error")
+	}
+
+	fmt.Println("MD5: " + _encodeMd5)
+}
