@@ -11,7 +11,7 @@ package main
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/banerwai/gommon/crypto"
+	"github.com/Eric-GreenComb/contrib/crypto"
 )
 
 func main() {
