@@ -32,7 +32,6 @@ func BindJSON(data io.Reader, dest interface{}) error {
 
 //WxpayCalcSign 微信支付 下单签名
 func WxpayCalcSign(mReq map[string]interface{}, key string) string {
-	// func WxpayCalcSign(mReq map[string]string, key string) string {
 
 	//fmt.Println("========STEP 1, 对key进行升序排序.========")
 	//fmt.Println("微信支付签名计算, API KEY:", key)
