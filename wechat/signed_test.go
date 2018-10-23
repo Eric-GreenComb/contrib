@@ -8,7 +8,7 @@ import (
 
 func TestBindJSON(t *testing.T) {
 	_reader := strings.NewReader(string("{\"id\":\"user01\",\"name\":\"eric\"}"))
-	var props map[string]string
+	var props map[string]interface{}
 	BindJSON(_reader, &props)
 	t.Logf("%v\n", props)
 
@@ -18,20 +18,13 @@ func TestBindJSON(t *testing.T) {
 }
 
 func TestWxpayCalcSign(t *testing.T) {
-	_reader := strings.NewReader(string("{\"id\":\"user01\",\"aname\":\"eric\"}"))
-	var props map[string]string
+	_reader := strings.NewReader(string("{\"id\":123,\"aname\":\"eric\",\"name\":\"\"}"))
+	var props map[string]interface{}
 	BindJSON(_reader, &props)
 	t.Logf("%v\n", props)
 
-	if props["id"] != "user01" {
-		t.Errorf("id error")
-	}
-
-	// aname=eric&id=user01&key=greencomb
+	// aname=eric&id=123&key=greencomb
 	_sign := WxpayCalcSign(props, "greencomb")
 
-	if props["id"] != "user01" {
-		t.Errorf("id error")
-	}
 	t.Logf("%s\n", _sign)
 }

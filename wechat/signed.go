@@ -31,8 +31,8 @@ func BindJSON(data io.Reader, dest interface{}) error {
 }
 
 //WxpayCalcSign 微信支付 下单签名
-// func WxpayCalcSign(mReq map[string]interface{}, key string) string {
-func WxpayCalcSign(mReq map[string]string, key string) string {
+func WxpayCalcSign(mReq map[string]interface{}, key string) string {
+	// func WxpayCalcSign(mReq map[string]string, key string) string {
 
 	//fmt.Println("========STEP 1, 对key进行升序排序.========")
 	//fmt.Println("微信支付签名计算, API KEY:", key)
@@ -49,11 +49,11 @@ func WxpayCalcSign(mReq map[string]string, key string) string {
 	var _buffer bytes.Buffer //Buffer是一个实现了读写方法的可变大小的字节缓冲
 	for _, _k := range _sortedKeys {
 		//fmt.Printf("k=%v, v=%v\n", k, mReq[k])
-		value := fmt.Sprintf("%v", mReq[_k])
-		if value != "" {
+		_value := fmt.Sprintf("%v", mReq[_k])
+		if _value != "" {
 			_buffer.WriteString(_k)
 			_buffer.WriteString("=")
-			_buffer.WriteString(value)
+			_buffer.WriteString(_value)
 			_buffer.WriteString("&")
 		}
 	}
