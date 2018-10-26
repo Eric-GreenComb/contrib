@@ -30,6 +30,16 @@ func BindJSON(data io.Reader, dest interface{}) error {
 	return nil
 }
 
+// ParseQuery ParseQuery
+func ParseQuery(query string, dest map[string]interface{}) error {
+	_keyValues := strings.Split(query, "&")
+	for _, _kv := range _keyValues {
+		_pair := strings.Split(_kv, "=")
+		dest[_pair[0]] = _pair[1]
+	}
+	return nil
+}
+
 //WxpayCalcSign 微信支付 下单签名
 func WxpayCalcSign(mReq map[string]interface{}, key string) string {
 
@@ -49,7 +59,7 @@ func WxpayCalcSign(mReq map[string]interface{}, key string) string {
 	for _, _k := range _sortedKeys {
 		//fmt.Printf("k=%v, v=%v\n", k, mReq[k])
 		_value := fmt.Sprintf("%v", mReq[_k])
-		if _value != "" {
+		if _value != "" && _k != "signed" {
 			_buffer.WriteString(_k)
 			_buffer.WriteString("=")
 			_buffer.WriteString(_value)
