@@ -13,7 +13,7 @@ func TestHash(t *testing.T) {
 	_is := CompareHash(_b, "ministor")
 
 	if !_is {
-		t.Errorf("CompareHash %b", _is)
+		t.Errorf("CompareMd5 error")
 	}
 
 	// fmt.Println(hex.EncodeToString(_b))
