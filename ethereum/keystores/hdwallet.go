@@ -1,4 +1,4 @@
-package ethereum
+package keystores
 
 import (
 	"crypto/ecdsa"
