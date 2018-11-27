@@ -12,6 +12,18 @@ func Gen6Number() string {
 	return fmt.Sprintf("%06v", rnd.Int31n(1000000))
 }
 
+// GetRandomNumber 生成随机数字字符串
+func GetRandomNumber(num int) string {
+	str := "0123456789"
+	bytes := []byte(str)
+	result := []byte{}
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+	for i := 0; i < num; i++ {
+		result = append(result, bytes[r.Intn(len(bytes))])
+	}
+	return string(result)
+}
+
 // GetRandomString 生成随机字符串
 func GetRandomString(num int) string {
 	str := "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
