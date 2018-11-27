@@ -46,7 +46,7 @@ func FromWei(number string, unitname string) string {
 	unitWeiFactor := new(big.Float).SetInt(unit.GetWeiFactor())
 	tmp := new(big.Float)
 	tmp.Quo(bigFloatNumber, unitWeiFactor)
-	tmpstr := fmt.Sprintf("%.10f", tmp)
+	tmpstr := fmt.Sprintf("%.6f", tmp)
 
 	return tmpstr
 }
