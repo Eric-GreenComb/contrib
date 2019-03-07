@@ -1,6 +1,7 @@
 package regexp
 
 import (
+	"fmt"
 	"testing"
 )
 
@@ -33,4 +34,14 @@ func TestIsMobile(t *testing.T) {
 		t.Errorf("Isn't Mobile")
 	}
 
+}
+
+func TestMobileReplaceRepl(t *testing.T) {
+
+	_str := MobileReplaceRepl("13810167616")
+
+	fmt.Println(_str)
+	if _str != "138****7616" {
+		t.Errorf("MobileReplaceRepl")
+	}
 }

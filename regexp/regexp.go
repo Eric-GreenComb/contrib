@@ -42,3 +42,9 @@ func IsMobile(mobileNum string) bool {
 	reg := regexp.MustCompile(regularMobile)
 	return reg.MatchString(mobileNum)
 }
+
+// MobileReplaceRepl MobileReplaceRepl 手机号脱敏
+func MobileReplaceRepl(str string) string {
+	re, _ := regexp.Compile("(\\d{3})(\\d{4})(\\d{4})")
+	return re.ReplaceAllString(str, "$1****$3")
+}
