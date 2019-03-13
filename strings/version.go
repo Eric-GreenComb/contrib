@@ -1,7 +1,6 @@
 package strings
 
 import (
-	"errors"
 	"strings"
 )
 
@@ -9,17 +8,34 @@ import (
 // return big:1 smaill:2 equ:0 error:-1
 func CompareVersion(ver1, ver2 string) (int, error) {
 
-	verStrArr1 := SpliteStrByNet(ver1)
-	verStrArr2 := SpliteStrByNet(ver2)
+	_verStrArr1 := SpliteStrByNet(ver1)
+	_verStrArr2 := SpliteStrByNet(ver2)
 
-	lenStr1 := len(verStrArr1)
-	lenStr2 := len(verStrArr2)
+	_lenStr1 := len(_verStrArr1)
+	_lenStr2 := len(_verStrArr2)
 
-	if lenStr1 != lenStr2 {
-		return -1, errors.New("version format error")
+	_len := _lenStr1
+	if _lenStr2 > _len {
+		_len = _lenStr2
 	}
 
-	return CompareArrStrVers(verStrArr1, verStrArr2), nil
+	verArr1 := genStringArray(_verStrArr1, _len)
+	verArr2 := genStringArray(_verStrArr2, _len)
+
+	return CompareArrStrVers(verArr1, verArr2), nil
+}
+
+func genStringArray(strs []string, lens int) []string {
+	_rets := make([]string, lens)
+	_len := len(strs)
+	for _index := range _rets {
+		if _index >= _len {
+			_rets[_index] = "0"
+			continue
+		}
+		_rets[_index] = strs[_index]
+	}
+	return _rets
 }
 
 // CompareArrStrVers CompareArrStrVers
@@ -73,6 +89,5 @@ func CompareByBytes(ver1, ver2 []byte) int {
 
 // SpliteStrByNet 按“.”分割版本号为小版本号的字符串数组
 func SpliteStrByNet(version string) []string {
-
 	return strings.Split(version, ".")
 }

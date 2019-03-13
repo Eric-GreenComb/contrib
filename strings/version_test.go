@@ -6,8 +6,8 @@ import (
 )
 
 func TestVersion(t *testing.T) {
-	version1 := "1.0.1"
-	version2 := "1.0.1.1"
+	version1 := "1.2.1"
+	version2 := "1.0.2.1"
 	fmt.Println(CompareVersion(version1, version2))
 
 	version1 = "1.0.13"
