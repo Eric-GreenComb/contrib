@@ -1,72 +1,33 @@
 package cache
 
 import (
-	"errors"
-	"time"
+	"sync"
 )
 
-type object struct {
-	time    time.Time
-	timeout time.Duration
-	obj     interface{}
+type memoryCache struct {
+	lock  *sync.RWMutex
+	items map[interface{}]interface{}
 }
 
-type cachetable map[string]*object
-
-var (
-	cache cachetable
-	// ErrTimeOut err.Error : timeout
-	ErrTimeOut = errors.New("The cache has been timeout.")
-	// ErrKeyNotFound err.Error key not found
-	ErrKeyNotFound = errors.New("The key was not found.")
-	// ErrTypeAssertion err.Error type assertion
-	ErrTypeAssertion = errors.New("Type assertion error.")
-)
-
-func init() {
-	cache = make(cachetable, 1000)
-	go gc()
+func (mc *memoryCache) set(key interface{}, value interface{}) error {
+	mc.lock.Lock()
+	defer mc.lock.Unlock()
+	mc.items[key] = value
+	return nil
 }
 
-func gc() {
-	for {
-		for k, v := range cache {
-			if v.time.Add(v.timeout).Before(time.Now()) {
-				delete(cache, k)
-			}
-			time.Sleep(time.Microsecond)
-		}
-		time.Sleep(time.Second)
+func (mc *memoryCache) get(key interface{}) interface{} {
+	mc.lock.RLock()
+	defer mc.lock.RUnlock()
+
+	if val, ok := mc.items[key]; ok {
+		return val
 	}
+	return nil
 }
 
-// Set set cache key/value/timeout
-func Set(key string, obj interface{}, timeout time.Duration) {
-	cache[key] = &object{time.Now(), timeout, obj}
-}
-
-// Get get cache by key
-func Get(key string) (obj interface{}, err error) {
-	c, ok := cache[key]
-	if ok {
-		now := time.Now()
-		if c.time.Add(c.timeout).After(now) {
-			c.time = now
-			return c.obj, nil
-		}
-		delete(cache, key)
-		return nil, ErrTimeOut
-	}
-	return nil, ErrKeyNotFound
-}
-
-// Delete delete cache by key
-func Delete(key string) {
-	delete(cache, key)
-}
-
-// HasKey check cache by key
-func HasKey(key string) bool {
-	_, ok := cache[key]
-	return ok
+// GCache GCache
+var GCache = &memoryCache{
+	lock:  new(sync.RWMutex),
+	items: make(map[interface{}]interface{}),
 }

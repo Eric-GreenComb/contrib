@@ -1,35 +1,59 @@
 package cache
 
 import (
-    "time"
-    "testing"
+	"fmt"
+	"testing"
+	"time"
 )
 
 func TestCache(t *testing.T) {
-    foobar := "foobar"
-    Set("foobar", foobar, time.Duration(10 * time.Second))
-    obj, err := Get("foobar")
-    if err != nil {
-        t.Error(err)
-    }
-    
-    str, ok := obj.(string)
-    if !ok {
-        t.Error("Type assertions error")
-    }
-    if str != foobar {
-        t.Error("Set/Get were not conform.")
-    }
-    go Set("foobar", foobar, time.Duration(1 * time.Microsecond))
-    time.Sleep(20 * time.Microsecond)
-    obj, err = Get("foobar")
-    if err == nil {
-        t.Error("Time out is not working.")
-    }
 
-    go Set("foobar", foobar, time.Duration(1 * time.Microsecond))
-    time.Sleep(time.Minute)
-    if HasKey("foobar") {
-       t.Error("GC is not working.")
-    }
+	type Token struct {
+		Expire int64
+		UserID string
+		Name   string
+	}
+	var _new Token
+	_new.Expire = time.Now().Add(time.Hour * 3).Unix()
+	_new.UserID = "138"
+	_new.Name = "eric"
+
+	GCache.set(_new.UserID, _new)
+
+	_token := GCache.get(_new.UserID)
+	_obj := _token.(Token)
+	fmt.Println(_obj.Name)
+
+	type User struct {
+		UserID string
+		Name   string
+		Phone  string
+	}
+
+	var _user User
+	_user.UserID = "138"
+	_user.Name = "eric"
+	_user.Phone = "110"
+
+	GCache.set(_new.UserID, _user)
+
+	_user.Phone = "120"
+	GCache.set(_new.UserID, _user)
+
+	_user01 := GCache.get(_new.UserID)
+	if _user01 == nil {
+		fmt.Println("NIL")
+		return
+	}
+	_obj1 := _user01.(User)
+	fmt.Println(_obj1.Phone)
+
+	_user01 = GCache.get(_new.UserID + "1")
+	if _user01 == nil {
+		fmt.Println("NIL")
+		return
+	}
+
+	return
+
 }
