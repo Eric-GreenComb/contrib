@@ -33,7 +33,7 @@ const (
 	MinTokenLength = 1
 
 	// DefaultTokenLength is the default size of a token
-	DefaultTokenLength = 9
+	DefaultTokenLength = 8
 )
 
 var (
