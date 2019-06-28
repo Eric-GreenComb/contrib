@@ -78,7 +78,7 @@ func PostHTTPSJSONString(finalURL, _json string) (response string, err error) {
 	}
 
 	_client := &httpbase.Client{
-		Timeout:   30 * time.Second,
+		Timeout:   10 * time.Second,
 		Transport: tr, //解决x509: certificate signed by unknown authority
 	}
 
@@ -86,6 +86,7 @@ func PostHTTPSJSONString(finalURL, _json string) (response string, err error) {
 	if err != nil {
 		return
 	}
+
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != httpbase.StatusOK {
