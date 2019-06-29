@@ -14,7 +14,7 @@ import (
 
 // PostRawJSON post json []byte
 func PostRawJSON(finalURL string, req []byte, response interface{}) (err error) {
-	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader(req))
+	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json;charset=utf-8", bytes.NewReader(req))
 	if err != nil {
 		return
 	}
@@ -33,7 +33,7 @@ func PostRawJSON(finalURL string, req []byte, response interface{}) (err error) 
 // PostJSONObj post json object
 func PostJSONObj(finalURL, _json string, response interface{}) (err error) {
 
-	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader([]byte(_json)))
+	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json;charset=utf-8", bytes.NewReader([]byte(_json)))
 	if err != nil {
 		return
 	}
@@ -52,7 +52,7 @@ func PostJSONObj(finalURL, _json string, response interface{}) (err error) {
 // PostJSONString post json string and return response string
 func PostJSONString(finalURL, _json string) (response string, err error) {
 
-	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader([]byte(_json)))
+	httpResp, err := httpbase.DefaultClient.Post(finalURL, "application/json;charset=utf-8", bytes.NewReader([]byte(_json)))
 	if err != nil {
 		return
 	}
@@ -82,7 +82,7 @@ func PostHTTPSJSONString(finalURL, _json string) (response string, err error) {
 		Transport: tr, //解决x509: certificate signed by unknown authority
 	}
 
-	httpResp, err := _client.Post(finalURL, "application/json; charset=utf-8", bytes.NewReader([]byte(_json)))
+	httpResp, err := _client.Post(finalURL, "application/json;charset=utf-8", bytes.NewReader([]byte(_json)))
 	if err != nil {
 		return
 	}
@@ -90,6 +90,7 @@ func PostHTTPSJSONString(finalURL, _json string) (response string, err error) {
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != httpbase.StatusOK {
+		fmt.Println("POST Error : http.Status", httpResp.Status)
 		return "", fmt.Errorf("http.Status: %s", httpResp.Status)
 	}
 
