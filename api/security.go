@@ -143,7 +143,7 @@ func JWTAuth(issuer, key string) gin.HandlerFunc {
 		})
 		if err != nil {
 			fmt.Println(err.Error())
-			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "解析JWT错误"), "")
+			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "校验凭证错误"), "")
 			return
 		}
 
