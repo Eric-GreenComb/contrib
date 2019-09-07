@@ -9,7 +9,6 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/dgrijalva/jwt-go/request"
 	"github.com/gin-gonic/gin"
 )
 
@@ -137,26 +136,20 @@ func AbortWithError(c *gin.Context, code int, message string) {
 // JWTAuth JWTAuth
 func JWTAuth(issuer, key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
-		_token, err := request.ParseFromRequest(c.Request, request.AuthorizationHeaderExtractor, func(token *jwt.Token) (interface{}, error) {
-			b := ([]byte(key))
-			return b, nil
-		})
+
+		_authorization := c.Request.Header.Get("Authorization")
+		_tokenString, err := StripBearerPrefixFromTokenString(_authorization)
+
+		_j := &JWT{[]byte(key)}
+		_claims, err := _j.Parse(_tokenString)
 		if err != nil {
-			fmt.Println(err.Error())
-			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "校验凭证错误"), "")
+			fmt.Println("err:", err.Error(), _claims)
+			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "凭证无效"), "")
 			return
 		}
 
-		claims := _token.Claims.(jwt.MapClaims)
-
-		fmt.Println(claims)
-		_now := time.Now().Unix()
-		if claims.VerifyExpiresAt(_now, false) == false {
-			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "凭证过期"), "")
-			return
-		}
-
-		if claims.VerifyIssuer(issuer, false) == false {
+		if _claims.VerifyIssuer(issuer, false) == false {
+			fmt.Println("凭证发放者不符")
 			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "凭证发放者不符"), "")
 			return
 		}
@@ -171,13 +164,13 @@ func CreateJWTString(issuer, key string, expire int) string {
 	_expire := time.Now().Add(time.Minute * time.Duration(expire)).Unix()
 	// Claims schema of the data it will store
 	claims := jwt.StandardClaims{
+		NotBefore: int64(time.Now().Unix() - 600),
 		ExpiresAt: _expire,
 		Issuer:    issuer,
 		IssuedAt:  time.Now().Unix(),
 	}
 
 	_token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-
 	signedToken, _ := _token.SignedString([]byte(key))
 	return signedToken
 }
