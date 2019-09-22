@@ -17,7 +17,13 @@ func Ntoa(ipnr int64) net.IP {
 }
 
 // Aton IP 转 int64
-func Aton(ipnr net.IP) int64 {
+func Aton(ip string) int64 {
+	_ipnr := net.ParseIP(ip)
+	return A2n(_ipnr)
+}
+
+// A2n IP 转 int64
+func A2n(ipnr net.IP) int64 {
 	bits := strings.Split(ipnr.String(), ".")
 	b0, _ := strconv.Atoi(bits[0])
 	b1, _ := strconv.Atoi(bits[1])

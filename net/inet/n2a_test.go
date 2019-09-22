@@ -2,7 +2,6 @@ package inet
 
 import (
 	"fmt"
-	"net"
 	"testing"
 )
 
@@ -11,11 +10,9 @@ func TestNtoa(t *testing.T) {
 }
 
 func TestAton(t *testing.T) {
-	_ipnr := net.ParseIP("192.168.1.1")
-	fmt.Println(Aton(_ipnr))
+	fmt.Println(Aton("192.168.1.1"))
 
-	_ipnr = net.ParseIP("192.168.1.2")
-	fmt.Println(Aton(_ipnr))
+	fmt.Println(Aton("192.168.1.2"))
 }
 
 func TestIsBelong(t *testing.T) {
