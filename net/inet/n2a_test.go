@@ -12,7 +12,7 @@ func TestNtoa(t *testing.T) {
 func TestAton(t *testing.T) {
 	fmt.Println(Aton("192.168.1.1"))
 
-	fmt.Println(Aton("192.168.1.2"))
+	fmt.Println(Aton("127.0.0.1"))
 }
 
 func TestIsBelong(t *testing.T) {
