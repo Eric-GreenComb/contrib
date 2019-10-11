@@ -9,7 +9,7 @@ import (
 )
 
 // Hash hash
-func Hash(password, salt string, keyLen int) string {
-	enc := pbkdf2.Key([]byte(password), []byte(salt), 4096, keyLen, sha256.New)
+func Hash(password, salt string, iter, keyLen int) string {
+	enc := pbkdf2.Key([]byte(password), []byte(salt), iter, keyLen, sha256.New)
 	return strings.Trim(base32.StdEncoding.EncodeToString(enc), "=")
 }

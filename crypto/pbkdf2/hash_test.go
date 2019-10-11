@@ -5,37 +5,22 @@ import (
 	"testing"
 )
 
-func TestHash(t *testing.T) {
+func BenchmarkHash(b *testing.B) {
 
-	_unique := Hash("13810167616", "f5d3c7fa", 16)
-	fmt.Println(_unique)
-
-	if _unique != "I7KFGKAXXVLQCPQ7TKKUSNEVDQ" {
-		t.Errorf("Unique error")
-	}
-
-	_unique = Hash("13810167616", "f5d3c7fa", 12)
-	fmt.Println(_unique)
-
-	if _unique != "I7KFGKAXXVLQCPQ7TKKQ" {
-		t.Errorf("Unique error")
-	}
-
-	_unique = Hash("13810167616", "f5d3c7fa", 8)
-	fmt.Println(_unique)
-
-	if _unique != "I7KFGKAXXVLQC" {
-		t.Errorf("Unique error")
+	b.ReportAllocs()
+	b.ResetTimer()
+	for i := 0; i < b.N; i++ {
+		Hash("13810167616", "f5d3c7fa", 3, 16)
 	}
 
 }
 
 func TestCheckHash(t *testing.T) {
 
-	_unique := Hash("13810167616", "f5d3c7fa", 12)
+	_unique := Hash("13810167616", "f5d3c7fa", 1000, 12)
 	fmt.Println(_unique)
 
-	_hash := "PBKI7KFGKAXXVLQCPQ7TKKQ"
+	_hash := "PBKDYMJJHZXJPQHGCODH3PQ"
 	fmt.Println(_hash[:3], _hash[3:])
 	if _hash[:3] == "PBK" {
 		if _unique != _hash[3:] {
@@ -45,17 +30,17 @@ func TestCheckHash(t *testing.T) {
 		t.Errorf("prefix error")
 	}
 
-	_unique = Hash("13810167616", "f5d3c7fa", 12)
+	_unique = Hash("13810167616", "f5d3c7fa", 1000, 12)
 	fmt.Println(_unique)
 
-	if _unique != "I7KFGKAXXVLQCPQ7TKKQ" {
+	if _unique != "DYMJJHZXJPQHGCODH3PQ" {
 		t.Errorf("Unique error")
 	}
 
-	_unique = Hash("13810167616", "f5d3c7fa", 8)
+	_unique = Hash("13810167616", "f5d3c7fa", 1000, 8)
 	fmt.Println(_unique)
 
-	if _unique != "I7KFGKAXXVLQC" {
+	if _unique != "DYMJJHZXJPQHG" {
 		t.Errorf("Unique error")
 	}
 
