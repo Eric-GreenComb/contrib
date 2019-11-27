@@ -32,7 +32,7 @@ func BenchmarkMd5(b *testing.B) {
 	b.ReportAllocs()
 	b.ResetTimer()
 	for i := 0; i < b.N; i++ {
-		Md5("13810167616")
+		DoubleMd5("13810167616")
 	}
 
 }
