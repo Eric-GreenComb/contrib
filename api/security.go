@@ -13,7 +13,11 @@ import (
 )
 
 // JSONAuth JSONAuth
-func JSONAuth(salt, sign string, rule map[string]interface{}) gin.HandlerFunc {
+// FormAuth FormAuth
+// salt:默认salt; appid:appid的key; sign: 签名的key; salts: salt组
+//
+// 如果请求参数中有appid的key，则匹配salts中配置的该app的salt，否则取默认的salt
+func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 把request的内容读取出来
 		var _bodyBytes []byte
@@ -31,21 +35,31 @@ func JSONAuth(salt, sign string, rule map[string]interface{}) gin.HandlerFunc {
 			return
 		}
 
-		if _, ok := rule["mobi"]; ok {
-			_param := rule["mobi"].(string)
-			if _, ok := _props[_param]; ok {
-				fmt.Println("检验", _props[_param])
-			}
+		// 处理各个appid对应的salt
+		_salt := salt
+		var _key string
+		var _bapp bool
+		// 如果没有输入sals列表，则采用默认salt
+		if nil == salts {
+			goto DefaultSalt
 		}
-
-		if _, ok := rule["email"]; ok {
-			_param := rule["email"].(string)
-			if _, ok := _props[_param]; ok {
-				fmt.Println("检验", _props[_param])
-			}
+		if len(appid) == 0 {
+			goto DefaultSalt
 		}
+		// 如果没有函数接口appid参数的request请求参数，则采用默认salt
+		_, _bapp = _props[appid]
+		if !_bapp {
+			goto DefaultSalt
+		}
+		// 如果接口salt列表没有匹配，则采用默认salt
+		_key = _props[appid].(string)
+		if _, _bsalt := salts[_key]; _bsalt {
+			_salt = salts[_key].(string)
+		}
+	DefaultSalt:
+		fmt.Println("salt:", _salt[:4])
 
-		_sign := CalcSign(_props, salt, sign)
+		_sign := CalcSign(_props, _salt, sign)
 		fmt.Println("====== api signed : ", _sign, _props[sign])
 		if _props[sign] != _sign {
 			AbortWithError(c, http.StatusOK, GetLangContent("", "", "签名错误"))
@@ -58,7 +72,10 @@ func JSONAuth(salt, sign string, rule map[string]interface{}) gin.HandlerFunc {
 }
 
 // FormAuth FormAuth
-func FormAuth(salt, sign string, rule map[string]interface{}) gin.HandlerFunc {
+// salt:默认salt; appid:appid的key; sign: 签名的key; salts: salt组
+//
+// 如果请求参数中有appid的key，则匹配salts中配置的该app的salt，否则取默认的salt
+func FormAuth(salt, appid, sign string, salts map[string]interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		// 把request的内容读取出来
@@ -83,19 +100,29 @@ func FormAuth(salt, sign string, rule map[string]interface{}) gin.HandlerFunc {
 			_props[_key] = _value[0]
 		}
 
-		if _, ok := rule["mobi"]; ok {
-			_param := rule["mobi"].(string)
-			if _, ok := _props[_param]; ok {
-				fmt.Println("检验", _props[_param])
-			}
+		// 处理各个appid对应的salt
+		_salt := salt
+		var _key string
+		var _bapp bool
+		// 如果没有输入sals列表，则采用默认salt
+		if nil == salts {
+			goto DefaultSalt
 		}
-
-		if _, ok := rule["email"]; ok {
-			_param := rule["email"].(string)
-			if _, ok := _props[_param]; ok {
-				fmt.Println("检验", _props[_param])
-			}
+		if len(appid) == 0 {
+			goto DefaultSalt
 		}
+		// 如果没有函数接口appid参数的request请求参数，则采用默认salt
+		_, _bapp = _props[appid]
+		if !_bapp {
+			goto DefaultSalt
+		}
+		// 如果接口salt列表没有匹配，则采用默认salt
+		_key = _props[appid].(string)
+		if _, _bsalt := salts[_key]; _bsalt {
+			_salt = salts[_key].(string)
+		}
+	DefaultSalt:
+		fmt.Println("salt:", _salt[:4])
 
 		_sign := CalcSign(_props, salt, sign)
 		fmt.Println("====== api signed : ", _sign, _props[sign])
@@ -138,6 +165,11 @@ func JWTAuth(issuer, key string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 
 		_authorization := c.Request.Header.Get("Authorization")
+		if len(_authorization) == 0 {
+			JWTAbortWithError(c, http.StatusUnauthorized, GetLangContent("", "", "凭证无效"), "")
+			return
+		}
+
 		_tokenString, err := StripBearerPrefixFromTokenString(_authorization)
 
 		_j := &JWT{[]byte(key)}
@@ -159,11 +191,13 @@ func JWTAuth(issuer, key string) gin.HandlerFunc {
 }
 
 // CreateJWTString CreateJWTString
-func CreateJWTString(issuer, key string, expire int) string {
+func CreateJWTString(id, sub, issuer, key string, expire int) string {
 
 	_expire := time.Now().Add(time.Minute * time.Duration(expire)).Unix()
 	// Claims schema of the data it will store
 	claims := jwt.StandardClaims{
+		Id:        id,
+		Subject:   sub,
 		NotBefore: int64(time.Now().Unix() - 600),
 		ExpiresAt: _expire,
 		Issuer:    issuer,
@@ -183,4 +217,18 @@ func JWTAbortWithError(c *gin.Context, code int, message, realm string) {
 		"msg":  message,
 	})
 	c.Abort()
+}
+
+// WhitelistAuth WhitelistAuth
+func WhitelistAuth(whitelist map[string]interface{}) gin.HandlerFunc {
+	return func(c *gin.Context) {
+
+		_ip := c.ClientIP()
+		if _, _inWhiteList := whitelist[_ip]; !_inWhiteList {
+			AbortWithError(c, http.StatusOK, GetLangContent("", "", "非法请求"))
+			return
+		}
+
+		c.Next()
+	}
 }
