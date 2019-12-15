@@ -60,8 +60,8 @@ func TestFormCalcSign(t *testing.T) {
 	}
 }
 
-func TestFormCalcSignAppend(t *testing.T) {
-	query := "id=123&name=eric&api_token=41d4bf7a6e3aac84669493fd2a8df473&a="
+func TestFormWechatSign(t *testing.T) {
+	query := "id=123&name=eric&api_token=487fb41ebe2db640d8842a01bfb4bb69&a="
 
 	_maps, _ := url.ParseQuery(query)
 	_props := make(map[string]interface{})
@@ -71,8 +71,8 @@ func TestFormCalcSignAppend(t *testing.T) {
 
 	t.Logf("%v\n", _props)
 
-	// VeZ16GuXyKaYhKbA?a=&id=123&name=eric
-	_sign := CalcSignAppend(_props, "VeZ16GuXyKaYhKbA?", "api_token")
+	// id=123&name=eric&VeZ16GuXyKaYhKbA?
+	_sign := WechatSign(_props, "VeZ16GuXyKaYhKbA?", "api_token")
 
 	t.Logf("%s\n", _sign)
 	fmt.Println(_sign)
@@ -84,8 +84,8 @@ func TestFormCalcSignAppend(t *testing.T) {
 	}
 }
 
-func TestFormAPICalcSignNil(t *testing.T) {
-	query := "api_token=53f29a0e5a243dd78639d2dc7120a8af&a="
+func TestFormWechatSignNil(t *testing.T) {
+	query := "api_token=ab1d2b98f8f1c53a930074166502b570&a="
 
 	_maps, _ := url.ParseQuery(query)
 	_props := make(map[string]interface{})
@@ -94,14 +94,51 @@ func TestFormAPICalcSignNil(t *testing.T) {
 	}
 	t.Logf("%v\n", _props)
 
-	// VeZ16GuXyKaYhKbA?a=&id=123&name=eric
-	_sign := CalcSign(_props, "VeZ16GuXyKaYhKbA?", "api_token")
+	// VeZ16GuXyKaYhKbA?
+	_sign := WechatSign(_props, "VeZ16GuXyKaYhKbA?", "api_token")
 
 	t.Logf("%s\n", _sign)
 
 	t.Logf("%s\n", _props["api_token"])
 
 	if _props["api_token"] != _sign {
+		t.Errorf("signed error")
+	}
+}
+
+func TestJSONWechatSign(t *testing.T) {
+	_reader := strings.NewReader(string("{\"id\":123,\"name\":\"\",\"api_token\":\"44940fa863af338f69b70af2d7ea4acd\"}"))
+	var props map[string]interface{}
+	BindJSON(_reader, &props)
+	fmt.Println("props:", props)
+
+	// id=123&VeZ16GuXyKaYhKbA?
+	_sign := WechatSign(props, "VeZ16GuXyKaYhKbA?", "api_token")
+
+	t.Logf("%s\n", _sign)
+
+	t.Logf("%s\n", props["api_token"])
+
+	if props["api_token"] != _sign {
+		t.Errorf("signed error")
+	}
+}
+
+func TestJSONWechatSignNil(t *testing.T) {
+	_reader := strings.NewReader(string("{\"name\":\"\",\"api_token\":\"ab1d2b98f8f1c53a930074166502b570\"}"))
+	var props map[string]interface{}
+	BindJSON(_reader, &props)
+	fmt.Println("props:", props)
+
+	// VeZ16GuXyKaYhKbA?
+	_sign := WechatSign(props, "VeZ16GuXyKaYhKbA?", "api_token")
+
+	t.Logf("%s\n", _sign)
+
+	t.Logf("%s\n", props["api_token"])
+
+	if props["api_token"] != _sign {
+		fmt.Println(props["api_token"], _sign)
 		t.Errorf("signed error")
 	}
 }

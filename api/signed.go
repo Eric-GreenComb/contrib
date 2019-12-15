@@ -73,8 +73,8 @@ func CalcSign(mReq map[string]interface{}, salt, sign string) string {
 	return strings.ToLower(hex.EncodeToString(_cipherStr))
 }
 
-// CalcSignAppend api md5key为签名参数的key，salt加在后部
-func CalcSignAppend(mReq map[string]interface{}, salt, sign string) string {
+// WechatSign api md5key为签名参数的key，salt加在后部,如果value没有,不参与签名
+func WechatSign(mReq map[string]interface{}, salt, sign string) string {
 
 	//fmt.Println("========STEP3, 在键值对的最后加上key=API_KEY========")
 	//STEP1, 在键值对的最后加上key=API_KEY
@@ -96,7 +96,7 @@ func CalcSignAppend(mReq map[string]interface{}, salt, sign string) string {
 	for _, _k := range _sortedKeys {
 		//fmt.Printf("k=%v, v=%v\n", k, mReq[k])
 		_value := fmt.Sprintf("%v", mReq[_k])
-		if _k != sign {
+		if _k != sign && len(_value) > 0 {
 			_buffer.WriteString(_k)
 			_buffer.WriteString("=")
 			_buffer.WriteString(_value)
@@ -108,7 +108,7 @@ func CalcSignAppend(mReq map[string]interface{}, salt, sign string) string {
 		_buffer.WriteString(salt)
 	}
 
-	fmt.Println(_buffer.String())
+	fmt.Println("buffer:", _buffer.String())
 	// remove lasted &
 	_buf := make([]byte, _buffer.Len())
 	_buffer.Read(_buf)

@@ -59,7 +59,7 @@ func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.Handle
 	DefaultSalt:
 		fmt.Println("salt:", _salt[:4])
 
-		_sign := CalcSign(_props, _salt, sign)
+		_sign := WechatSign(_props, _salt, sign)
 		fmt.Println("====== api signed : ", _sign, _props[sign])
 		if _props[sign] != _sign {
 			AbortWithError(c, http.StatusOK, GetLangContent("", "", "签名错误"))
@@ -124,7 +124,7 @@ func FormAuth(salt, appid, sign string, salts map[string]interface{}) gin.Handle
 	DefaultSalt:
 		fmt.Println("salt:", _salt[:4])
 
-		_sign := CalcSign(_props, salt, sign)
+		_sign := WechatSign(_props, salt, sign)
 		fmt.Println("====== api signed : ", _sign, _props[sign])
 		if _props[sign] != _sign {
 			AbortWithError(c, http.StatusOK, GetLangContent("", "", "签名错误"))
