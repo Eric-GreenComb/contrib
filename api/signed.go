@@ -22,7 +22,7 @@ func BindJSON(data io.Reader, dest interface{}) error {
 	}
 
 	decoder := json.NewDecoder(data)
-
+	decoder.UseNumber()
 	if err := decoder.Decode(dest); err != nil {
 		return err
 	}
