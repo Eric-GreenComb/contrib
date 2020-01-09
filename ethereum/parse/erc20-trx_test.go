@@ -1,0 +1,17 @@
+package parse
+
+import (
+	"fmt"
+	"testing"
+)
+
+func TestERC20Transfer(t *testing.T) {
+	// _tx := "0xa9059cbb0000000000000000000000000cf0698955123303a9a36ce470552c8d10ee6198000000000000000000000000000000000000000000000001158e460913d00000"
+	_tx := "0xa9059cbb000000000000000000000000af6bcac3d8cc3d93560ce8a4d5ab1a2c3bf0436100000000000000000000000000000000000000000000000006f05b59d3b20000"
+	_addr, _value, err := ERC20Transfer(_tx)
+	if err != nil {
+		fmt.Println(err.Error())
+	} else {
+		fmt.Println(_addr, _value)
+	}
+}
