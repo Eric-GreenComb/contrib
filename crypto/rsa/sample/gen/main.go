@@ -11,22 +11,67 @@ import (
 	"net"
 	"os"
 	"time"
-
-	myrsa "github.com/Eric-GreenComb/contrib/crypto/rsa"
 )
 
 func main() {
 	var bits int
 	bits = 1024
-	if err := myrsa.GenKey(bits); err != nil {
+	_pub, err := RsaGenKey(bits)
+	if err != nil {
 		log.Fatal("密钥文件生成失败！")
 	}
+
+	err = GenCert(bits, _pub)
+
 	log.Println("密钥文件生成成功！")
 }
 
 // RsaGenKey 生成RSA公私钥文件
-func RsaGenKey(bits int) error {
+func RsaGenKey(bits int) (*rsa.PublicKey, error) {
 
+	// 生成私钥文件
+	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
+	if err != nil {
+		return nil, err
+	}
+	derStream := x509.MarshalPKCS1PrivateKey(privateKey)
+	block := &pem.Block{
+		Type:  "RSA PRIVATE KEY",
+		Bytes: derStream,
+	}
+	file, err := os.Create("private.pem")
+	if err != nil {
+		return nil, err
+	}
+	err = pem.Encode(file, block)
+	if err != nil {
+		return nil, err
+	}
+
+	// 生成公钥文件
+	publicKey := &privateKey.PublicKey
+	derPkix, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return nil, err
+	}
+	block = &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: derPkix,
+	}
+	file, err = os.Create("public.pem")
+	if err != nil {
+		return nil, err
+	}
+	err = pem.Encode(file, block)
+	if err != nil {
+		return nil, err
+	}
+
+	return publicKey, nil
+}
+
+// GenCert GenCert
+func GenCert(bits int, pubKey *rsa.PublicKey) error {
 	// 生成私钥文件
 	privateKey, err := rsa.GenerateKey(rand.Reader, bits)
 	if err != nil {
@@ -37,7 +82,26 @@ func RsaGenKey(bits int) error {
 		Type:  "RSA PRIVATE KEY",
 		Bytes: derStream,
 	}
-	file, err := os.Create("private.pem")
+	file, err := os.Create("ca_private.pem")
+	if err != nil {
+		return err
+	}
+	err = pem.Encode(file, block)
+	if err != nil {
+		return err
+	}
+
+	// 生成公钥文件
+	publicKey := &privateKey.PublicKey
+	derPkix, err := x509.MarshalPKIXPublicKey(publicKey)
+	if err != nil {
+		return err
+	}
+	block = &pem.Block{
+		Type:  "PUBLIC KEY",
+		Bytes: derPkix,
+	}
+	file, err = os.Create("ca_public.pem")
 	if err != nil {
 		return err
 	}
@@ -68,29 +132,10 @@ func RsaGenKey(bits int) error {
 	}
 
 	// 生成 SSL公匙
-	derBytes, _ := x509.CreateCertificate(rand.Reader, &certificate509, &certificate509, &privateKey.PublicKey, privateKey)
+	derBytes, _ := x509.CreateCertificate(rand.Reader, &certificate509, &certificate509, pubKey, privateKey)
 	certOut, _ := os.Create("cert.pem")
 	pem.Encode(certOut, &pem.Block{Type: "CERTIFICATE", Bytes: derBytes})
 	certOut.Close()
-
-	// 生成公钥文件
-	publicKey := &privateKey.PublicKey
-	derPkix, err := x509.MarshalPKIXPublicKey(publicKey)
-	if err != nil {
-		return err
-	}
-	block = &pem.Block{
-		Type:  "PUBLIC KEY",
-		Bytes: derPkix,
-	}
-	file, err = os.Create("public.pem")
-	if err != nil {
-		return err
-	}
-	err = pem.Encode(file, block)
-	if err != nil {
-		return err
-	}
 
 	return nil
 }

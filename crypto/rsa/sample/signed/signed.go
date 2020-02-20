@@ -30,8 +30,8 @@ func main() {
 
 	fmt.Println(hex.EncodeToString(_sign))
 
-	err = myrsa.Verify(crypto.SHA256, hashed[:], cert, _sign)
-	// err = RsaVerify(crypto.MD5, hashed[:], cert, _sign)
+	err = myrsa.Verify(crypto.SHA256, hashed[:], pub, _sign)
+	// err = RsaVerify(crypto.MD5, hashed[:], pub, _sign)
 	if err != nil {
 		fmt.Println(err.Error())
 	} else {
@@ -91,11 +91,11 @@ func RsaVerify(hash crypto.Hash, hashed, publicKey, signature []byte) error {
 	// return rsa.VerifyPKCS1v15(pub, crypto.SHA256, hashed[:], signature)
 }
 
-var cert, key []byte
+var pub, key []byte
 
 func init() {
 	var err error
-	cert, err = ioutil.ReadFile("public.pem")
+	pub, err = ioutil.ReadFile("public.pem")
 	if err != nil {
 		fmt.Println(err.Error())
 		os.Exit(-1)
