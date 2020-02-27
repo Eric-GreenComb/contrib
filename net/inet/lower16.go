@@ -6,6 +6,16 @@ import (
 	"net"
 )
 
+// PrivateIP2Lower16 PrivateIP2Lower16
+func PrivateIP2Lower16() int64 {
+	_uint16, err := Lower16BitPrivateIP()
+	if err != nil {
+		fmt.Println(err.Error())
+		return 1000
+	}
+	return int64(_uint16)
+}
+
 // Lower16BitPrivateIP Lower16BitPrivateIP
 func Lower16BitPrivateIP() (uint16, error) {
 	ip, err := privateIPv4()

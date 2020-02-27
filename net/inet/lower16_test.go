@@ -6,5 +6,5 @@ import (
 )
 
 func TestLower16BitPrivateIP(t *testing.T) {
-	fmt.Println(Lower16BitPrivateIP())
+	fmt.Println(PrivateIP2Lower16())
 }
