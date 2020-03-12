@@ -10,5 +10,5 @@ func TestRedPackage(t *testing.T) {
 }
 
 func TestXRandom(t *testing.T) {
-	fmt.Println(XRandom(20, 500))
+	fmt.Println(xRandom(20, 500))
 }
