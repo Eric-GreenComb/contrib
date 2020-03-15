@@ -36,6 +36,7 @@ insert into tbl_permission (perm_id,`name`,bit_pos,bit_group,permission) values 
 select * from tbl_permission;
 -- 获取多个权限的和，用于批量设置
 select sum(CONV(permission,2,10)) from tbl_permission where perm_id in (1000,1001);
+select sum(1<<bit_pos) from tbl_permission where perm_id in (1000,1001);
 
 -- 创建role x 权限表
 CREATE TABLE `tbl_role_permission` (
