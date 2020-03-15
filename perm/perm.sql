@@ -123,5 +123,6 @@ tbl_permission p
 LEFT JOIN tbl_role_permission rp ON p.bit_group = rp.permission_bit_group
 LEFT JOIN tbl_role r ON r.role_id = rp.role_id
 WHERE
-CONV(rp.permission_bit_str,2,10) >> p.bit_pos & 1 = 1
-and p.`name` = '查看姓名权限';
+CONV(rp.permission_bit_str,2,10) >> p.bit_pos & 1 = 1 
+-- and p.`name` = '查看姓名权限';
+and p.`perm_id` = 1000;
