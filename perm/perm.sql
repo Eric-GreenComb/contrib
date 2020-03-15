@@ -34,6 +34,8 @@ insert into tbl_permission (perm_id,`name`,bit_pos,bit_group,permission) values 
 insert into tbl_permission (perm_id,`name`,bit_pos,bit_group,permission) values (1001,'查看姓名权限',2,1,'00000100');
 
 select * from tbl_permission;
+-- 获取多个权限的和，用于批量设置
+select sum(CONV(permission,2,10)) from tbl_permission where perm_id in (1000,1001);
 
 -- 创建role x 权限表
 CREATE TABLE `tbl_role_permission` (
@@ -45,7 +47,17 @@ CREATE TABLE `tbl_role_permission` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+select 1<<4;
+select BIN(16);
+select LPAD(BIN(16),64,0);
+
 insert into tbl_role_permission (role_id,permission_bit_group,permission_bit_str) values (101,1,'00001100');
+update tbl_role_permission set permission_bit_str='00001100' where role_id=101;
+-- 增加权限
+update tbl_role_permission set permission_bit_str=LPAD(BIN((CONV(permission_bit_str,2,10)|17)),8,0) where role_id=101;
+-- 删除权限
+update tbl_role_permission set permission_bit_str=LPAD(BIN((CONV(permission_bit_str,2,10)^17)),8,0) where role_id=101;
+
 insert into tbl_role_permission (role_id,permission_bit_group,permission_bit_str) values (102,1,'00000100');
 
 -- 根据角色名查看权限
