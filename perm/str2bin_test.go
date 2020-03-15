@@ -20,3 +20,10 @@ func BenchmarkStrconv(b *testing.B) {
 		}
 	}
 }
+
+func TestStr2Bin(t *testing.T) {
+	fmt.Println(1 << 3)
+	fmt.Println(Str2Bin("00001000"))
+
+	fmt.Println(Str2Bin("00000100"))
+}

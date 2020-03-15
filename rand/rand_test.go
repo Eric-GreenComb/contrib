@@ -10,7 +10,7 @@ func TestGen6Number(t *testing.T) {
 }
 
 func TestGetRandomNumber(t *testing.T) {
-	_rand := GetRandomNumber(6)
+	_rand := GetRandomNumber(8)
 	t.Logf("%v\n", _rand)
 
 	_rand = GetRandomNumber(5)
