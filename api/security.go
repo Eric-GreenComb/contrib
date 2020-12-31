@@ -6,18 +6,18 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 )
 
-// JSONAuth JSONAuth
-// FormAuth FormAuth
+// SignedAuth SignedAuth
 // salt:默认salt; appid:appid的key; sign: 签名的key; salts: salt组
 //
 // 如果请求参数中有appid的key，则匹配salts中配置的该app的salt，否则取默认的salt
-func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.HandlerFunc {
+func SignedAuth(salt, appid, sign string, salts map[string]interface{}) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// 把request的内容读取出来
 		var _bodyBytes []byte
@@ -27,9 +27,8 @@ func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.Handle
 		}
 
 		_bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
-		_reader := bytes.NewReader(_bodyBytes)
-		var _props map[string]interface{}
-		err := BindJSON(_reader, &_props)
+
+		_props, err := GenPropsByBody(c.ContentType(), _bodyBytes)
 		if err != nil {
 			AbortWithError(c, http.StatusOK, GetLangContent("", "", "JSON数据格式错误"))
 			return
@@ -46,6 +45,7 @@ func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.Handle
 		if len(appid) == 0 {
 			goto DefaultSalt
 		}
+
 		// 如果没有函数接口appid参数的request请求参数，则采用默认salt
 		_, _bapp = _props[appid]
 		if !_bapp {
@@ -71,70 +71,36 @@ func JSONAuth(salt, appid, sign string, salts map[string]interface{}) gin.Handle
 	}
 }
 
-// FormAuth FormAuth
-// salt:默认salt; appid:appid的key; sign: 签名的key; salts: salt组
-//
-// 如果请求参数中有appid的key，则匹配salts中配置的该app的salt，否则取默认的salt
-func FormAuth(salt, appid, sign string, salts map[string]interface{}) gin.HandlerFunc {
-	return func(c *gin.Context) {
+// GenPropsByBody 根据类型分解参数
+func GenPropsByBody(contentType string, body []byte) (map[string]interface{}, error) {
 
-		// 把request的内容读取出来
-		var _bodyBytes []byte
+	var _props map[string]interface{}
 
-		if c.Request.Body == nil {
-			AbortWithError(c, http.StatusOK, GetLangContent("", "", "HTTP请求Body错误"))
-			return
+	if _bindJSON := strings.Contains(contentType, "application/json"); _bindJSON {
+		_reader := bytes.NewReader(body)
+		err := BindJSON(_reader, &_props)
+		if err != nil {
+			return _props, err
 		}
+		return _props, nil
+	}
 
-		_bodyBytes, _ = ioutil.ReadAll(c.Request.Body)
+	if _bindForm := strings.Contains(contentType, "application/x-www-form-urlencoded"); _bindForm {
 
-		_formString := string(_bodyBytes)
+		_formString := string(body)
 		_maps, err := url.ParseQuery(_formString)
 		if err != nil {
-			AbortWithError(c, http.StatusOK, GetLangContent("", "", "解析HTTP参数错误"))
-			return
+			return _props, err
 		}
 
-		_props := make(map[string]interface{})
+		_props = make(map[string]interface{})
 		for _key, _value := range _maps {
 			_props[_key] = _value[0]
 		}
-
-		// 处理各个appid对应的salt
-		_salt := salt
-		var _key string
-		var _bapp bool
-		// 如果没有输入sals列表，则采用默认salt
-		if nil == salts {
-			goto DefaultSalt
-		}
-		if len(appid) == 0 {
-			goto DefaultSalt
-		}
-		// 如果没有函数接口appid参数的request请求参数，则采用默认salt
-		_, _bapp = _props[appid]
-		if !_bapp {
-			goto DefaultSalt
-		}
-		// 如果接口salt列表没有匹配，则采用默认salt
-		_key = _props[appid].(string)
-		if _, _bsalt := salts[_key]; _bsalt {
-			_salt = salts[_key].(string)
-		}
-	DefaultSalt:
-		fmt.Println("salt:", _salt[:4])
-
-		_sign := WechatSign(_props, salt, sign)
-		fmt.Println("====== api signed : ", _sign, _props[sign])
-		if _props[sign] != _sign {
-			AbortWithError(c, http.StatusOK, GetLangContent("", "", "签名错误"))
-			return
-		}
-
-		// 把刚刚读出来的再写进去
-		c.Request.Body = ioutil.NopCloser(bytes.NewBuffer(_bodyBytes))
-		c.Next()
+		return _props, nil
 	}
+
+	return _props, nil
 }
 
 // GetLangContent GetLangContent
