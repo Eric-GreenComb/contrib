@@ -31,18 +31,6 @@ func BenchmarkUUID(b *testing.B) {
 	}
 }
 
-func BenchmarkNewGUID(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		NewGUID()
-	}
-}
-
-func BenchmarkNewGUIDWith(b *testing.B) {
-	for i := 0; i < b.N; i++ {
-		NewGUIDWith("test")
-	}
-}
-
 func BenchmarkFlakeID(b *testing.B) {
 	for i := 0; i < b.N; i++ {
 		GetFlakeID()
