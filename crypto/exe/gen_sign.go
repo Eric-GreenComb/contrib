@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/banerwai/gommon/crypto"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -25,5 +24,4 @@ func main() {
 	}
 	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
 	fmt.Println(timestamp)
-	fmt.Println(crypto.DoubleMd5(total + timestamp))
 }

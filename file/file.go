@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	bgstrings "github.com/banerwai/gommon/strings"
+	bgstrings "github.com/Eric-GreenComb/contrib/strings"
 )
 
 // SplitFilename 分离文件名与扩展名(包含.)
